@@ -220,6 +220,7 @@
             </div>
 
             <h2>Add Transaction</h2>
+            <input type="date" id="date" required>
             <input type="text" id="description" placeholder="Description">
             <input type="number" id="amount" placeholder="Amount">
             <select id="type">
@@ -235,11 +236,13 @@
                 <option value="other">Other</option>
             </select>
             <button id="add-transaction">Add Transaction</button>
+            <button id="clear-all">Clear All</button>
 
             <h2>Transactions</h2>
             <table id="transactions-table">
                 <thead>
                     <tr>
+                        <th>Date</th>
                         <th>Description</th>
                         <th>Amount</th>
                         <th>Type</th>
@@ -284,20 +287,21 @@
         }
 
         function addTransaction() {
+            const date = document.getElementById('date').value;
             const description = descriptionInput.value;
             const amount = parseFloat(amountInput.value);
             const type = typeSelect.value;
             const category = categorySelect.value;
 
-            if (description && amount && !isNaN(amount)) {
-                const transaction = { id: Date.now(), description, amount, type, category };
+            if (date && description && amount && !isNaN(amount)) {
+                const transaction = { id: Date.now(), date, description, amount, type, category };
                 transactions.push(transaction);
                 updateTransactionsTable();
                 updateSummary();
                 saveTransactions();
                 clearInputs();
             } else {
-                alert('Please enter a valid description and amount.');
+                alert('Please enter a valid date, description, and amount.');
             }
         }
 
@@ -312,11 +316,12 @@
             transactionsTableBody.innerHTML = '';
             transactions.forEach(transaction => {
                 const row = transactionsTableBody.insertRow();
-                row.insertCell(0).textContent = transaction.description;
-                row.insertCell(1).textContent = `$${transaction.amount.toFixed(2)}`;
-                row.insertCell(2).textContent = transaction.type;
-                row.insertCell(3).textContent = transaction.category;
-                const deleteCell = row.insertCell(4);
+                row.insertCell(0).textContent = transaction.date;
+                row.insertCell(1).textContent = transaction.description;
+                row.insertCell(2).textContent = `$${transaction.amount.toFixed(2)}`;
+                row.insertCell(3).textContent = transaction.type;
+                row.insertCell(4).textContent = transaction.category;
+                const deleteCell = row.insertCell(5);
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.className = 'delete-btn';
@@ -353,6 +358,7 @@
         }
 
         function clearInputs() {
+            document.getElementById('date').value = '';
             descriptionInput.value = '';
             amountInput.value = '';
             typeSelect.value = 'income';
@@ -372,8 +378,18 @@
             }
         }
 
+        function clearAll() {
+            if (confirm('Are you sure you want to delete all transactions?')) {
+                transactions = [];
+                updateTransactionsTable();
+                updateSummary();
+                saveTransactions();
+            }
+        }
+
         addTransactionButton.addEventListener('click', addTransaction);
         darkModeToggle.addEventListener('change', toggleDarkMode);
+        document.getElementById('clear-all').addEventListener('click', clearAll);
 
         // Load saved transactions and dark mode preference when the page loads
         loadTransactions();
