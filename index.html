@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgeting Tool</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #50e3c2;
+            --accent: #b8e986;
+            --background: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --income: #4caf50;
+            --expense: #f44336;
+        }
+        .dark-mode {
+            --primary: #64b5f6;
+            --secondary: #4db6ac;
+            --accent: #aed581;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --income: #81c784;
+            --expense: #e57373;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--background);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+        h1, h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #3a7bd5;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--secondary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .summary > div {
+            text-align: center;
+        }
+        .summary .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .summary .value {
+            font-size: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--accent);
+            transition: border-color 0.3s ease;
+        }
+        th {
+            background-color: var(--accent);
+            color: var(--text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .income {
+            color: var(--income);
+        }
+        .expense {
+            color: var(--expense);
+        }
+        .delete-btn {
+            background-color: var(--expense);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .chart {
+            width: 100%;
+            height: 200px;
+            margin-top: 2rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+        }
+        .bar {
+            width: 40%;
+            background-color: var(--primary);
+            transition: height 0.5s ease, background-color 0.3s ease;
+        }
+        .bar.income {
+            background-color: var(--income);
+        }
+        .bar.expense {
+            background-color: var(--expense);
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .mode-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .mode-toggle label {
+            cursor: pointer;
+            width: 60px;
+            height: 30px;
+            background-color: #83d8ff;
+            display: block;
+            border-radius: 30px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+        .mode-toggle label:after {
+            content: '☀️';
+            width: 28px;
+            height: 28px;
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mode-toggle input:checked + label {
+            background-color: #749dd6;
+        }
+        .mode-toggle input:checked + label:after {
+            left: calc(100% - 1px);
+            transform: translateX(-100%);
+            content: '🌙';
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle">
+        <input type="checkbox" id="dark-mode-toggle">
+        <label for="dark-mode-toggle"></label>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h1>Budgeting Tool</h1>
+            
+            <div class="summary">
+                <div>
+                    <div class="label">Total Income</div>
+                    <div id="total-income" class="value income">$0</div>
+                </div>
+                <div>
+                    <div class="label">Total Expenses</div>
+                    <div id="total-expenses" class="value expense">$0</div>
+                </div>
+                <div>
+                    <div class="label">Remaining Budget</div>
+                    <div id="remaining-budget" class="value">$0</div>
+                </div>
+            </div>
+
+            <div class="chart">
+                <div id="income-bar" class="bar income" style="height: 0%;"></div>
+                <div id="expense-bar" class="bar expense" style="height: 0%;"></div>
+            </div>
+
+            <h2>Add Transaction</h2>
+            <input type="text" id="description" placeholder="Description">
+            <input type="number" id="amount" placeholder="Amount">
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+            <select id="category">
+                <option value="salary">Salary</option>
+                <option value="food">Food</option>
+                <option value="rent">Rent</option>
+                <option value="utilities">Utilities</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="other">Other</option>
+            </select>
+            <button id="add-transaction">Add Transaction</button>
+
+            <h2>Transactions</h2>
+            <table id="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const descriptionInput = document.getElementById('description');
+        const amountInput = document.getElementById('amount');
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('category');
+        const addTransactionButton = document.getElementById('add-transaction');
+        const totalIncomeSpan = document.getElementById('total-income');
+        const totalExpensesSpan = document.getElementById('total-expenses');
+        const remainingBudgetSpan = document.getElementById('remaining-budget');
+        const transactionsTableBody = document.getElementById('transactions-table').getElementsByTagName('tbody')[0];
+        const incomeBar = document.getElementById('income-bar');
+        const expenseBar = document.getElementById('expense-bar');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        let transactions = [];
+        let totalIncome = 0;
+        let totalExpenses = 0;
+
+        function loadTransactions() {
+            const savedTransactions = localStorage.getItem('transactions');
+            if (savedTransactions) {
+                transactions = JSON.parse(savedTransactions);
+                updateTransactionsTable();
+                updateSummary();
+            }
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        function addTransaction() {
+            const description = descriptionInput.value;
+            const amount = parseFloat(amountInput.value);
+            const type = typeSelect.value;
+            const category = categorySelect.value;
+
+            if (description && amount && !isNaN(amount)) {
+                const transaction = { id: Date.now(), description, amount, type, category };
+                transactions.push(transaction);
+                updateTransactionsTable();
+                updateSummary();
+                saveTransactions();
+                clearInputs();
+            } else {
+                alert('Please enter a valid description and amount.');
+            }
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            updateTransactionsTable();
+            updateSummary();
+            saveTransactions();
+        }
+
+        function updateTransactionsTable() {
+            transactionsTableBody.innerHTML = '';
+            transactions.forEach(transaction => {
+                const row = transactionsTableBody.insertRow();
+                row.insertCell(0).textContent = transaction.description;
+                row.insertCell(1).textContent = `$${transaction.amount.toFixed(2)}`;
+                row.insertCell(2).textContent = transaction.type;
+                row.insertCell(3).textContent = transaction.category;
+                const deleteCell = row.insertCell(4);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete-btn';
+                deleteButton.onclick = () => deleteTransaction(transaction.id);
+                deleteCell.appendChild(deleteButton);
+                row.className = transaction.type;
+            });
+        }
+
+        function updateSummary() {
+            totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+            totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            const remainingBudget = totalIncome - totalExpenses;
+
+            totalIncomeSpan.textContent = `$${totalIncome.toFixed(2)}`;
+            totalExpensesSpan.textContent = `$${totalExpenses.toFixed(2)}`;
+            remainingBudgetSpan.textContent = `$${remainingBudget.toFixed(2)}`;
+            remainingBudgetSpan.className = remainingBudget >= 0 ? 'income' : 'expense';
+
+            updateChart();
+        }
+
+        function updateChart() {
+            const maxValue = Math.max(totalIncome, totalExpenses);
+            const incomeHeight = maxValue > 0 ? (totalIncome / maxValue) * 100 : 0;
+            const expenseHeight = maxValue > 0 ? (totalExpenses / maxValue) * 100 : 0;
+
+            incomeBar.style.height = `${incomeHeight}%`;
+            expenseBar.style.height = `${expenseHeight}%`;
+        }
+
+        function clearInputs() {
+            descriptionInput.value = '';
+            amountInput.value = '';
+            typeSelect.value = 'income';
+            categorySelect.value = 'salary';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        function loadDarkModePreference() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'true') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            }
+        }
+
+        addTransactionButton.addEventListener('click', addTransaction);
+        darkModeToggle.addEventListener('change', toggleDarkMode);
+
+        // Load saved transactions and dark mode preference when the page loads
+        loadTransactions();
+        loadDarkModePreference();
+    </script>
+</body>
+</html>
