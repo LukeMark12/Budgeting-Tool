@@ -97,9 +97,67 @@
         .delete-btn:hover {
             background-color: #f44336;
         }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+        .mode-toggle:hover {
+            background-color: #3a7bd5;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            table th, table td {
+                padding: 0.8rem;
+            }
+            .button {
+                font-size: 0.85rem;
+            }
+            .mode-toggle {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            h2 {
+                font-size: 1.2rem;
+            }
+            .button {
+                width: 100%;
+                font-size: 1rem;
+                padding: 0.75rem;
+            }
+            table th, table td {
+                padding: 0.5rem;
+            }
+            .mode-toggle {
+                top: 10px;
+                right: 10px;
+                font-size: 0.85rem;
+                padding: 6px 14px;
+            }
+        }
     </style>
 </head>
 <body>
+    <button class="mode-toggle" onclick="toggleDarkMode()">Switch to Dark Mode</button>
     <div class="container">
         <div class="card">
             <h1>Recycle Bin</h1>
@@ -122,6 +180,31 @@
     </div>
 
     <script>
+        // Dark mode toggle function
+        function toggleDarkMode() {
+            const body = document.body;
+            const button = document.querySelector('.mode-toggle');
+
+            // Toggle dark mode class on the body
+            body.classList.toggle('dark-mode');
+
+            // Update button text depending on the mode
+            if (body.classList.contains('dark-mode')) {
+                button.textContent = "Switch to Light Mode";
+                localStorage.setItem('theme', 'dark');
+            } else {
+                button.textContent = "Switch to Dark Mode";
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check localStorage for theme preference and apply
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.mode-toggle').textContent = "Switch to Light Mode";
+        }
+
         const deletedTransactionsTableBody = document.getElementById('deleted-transactions-table').getElementsByTagName('tbody')[0];
 
         // Get deleted transactions from localStorage
