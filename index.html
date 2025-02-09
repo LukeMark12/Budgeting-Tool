@@ -38,6 +38,7 @@
             max-width: 800px;
             margin: 2rem auto;
             padding: 0 1rem;
+            width: 100%;
         }
         .card {
             background-color: var(--card-bg);
@@ -50,6 +51,8 @@
         h1, h2 {
             color: var(--primary);
             margin-bottom: 1rem;
+            font-size: 1.8rem;
+            text-align: center;
         }
         input, select {
             width: 100%;
@@ -125,6 +128,66 @@
         }
         .delete-btn:hover {
             background-color: #d32f2f;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            h1, h2 {
+                font-size: 1.6rem;
+            }
+
+            .summary {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .summary > div {
+                margin-bottom: 1rem;
+            }
+
+            input, select {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 0.5rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            table th, table td {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .delete-btn {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Very small screens (e.g. portrait phones) */
+        @media (max-width: 480px) {
+            h1, h2 {
+                font-size: 1.4rem;
+            }
+
+            .summary .label {
+                font-size: 0.8rem;
+            }
+
+            .summary .value {
+                font-size: 1.2rem;
+            }
+
+            .delete-btn {
+                padding: 0.3rem 0.6rem;
+            }
         }
     </style>
 </head>
